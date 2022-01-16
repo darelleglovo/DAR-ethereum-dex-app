@@ -2,6 +2,7 @@ This is a DEX (Decentralized Exchange) using ERC20 standard. Implemented using t
 - Frontend
     - Next.js v12.0.8
     - React v17.0.2
+    - MUI Material v5.2.8
 - Backend
     - Solidity v0.8.11
     - Truffle v5.4.29 (Ethereum development framework)
