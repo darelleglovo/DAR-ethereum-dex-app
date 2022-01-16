@@ -1,3 +1,4 @@
+This is still on development
 This is a DEX (Decentralized Exchange) using ERC20 standard. Implemented using the following stack:
 - Frontend
     - Next.js v12.0.8
