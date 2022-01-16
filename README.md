@@ -7,6 +7,11 @@ This is a DEX (Decentralized Exchange) using ERC20 standard. Implemented using t
     - Truffle v5.4.29 (Ethereum development framework)
     - Ganache v2.5.4
 
+## DAR Token
+
+Is an ERC20 token just named before.. well.. my name 😆
+It is not deployed on mainnet
+
 ## Getting Started
 
 First, run Ganache.
@@ -21,6 +26,14 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## DAR Token
+## Testing
+For unit test, run the following command:
 
-Is an ERC20 token just named before.. well.. my name 😆
+```bash
+truffle test
+```
+
+
+
+
+
