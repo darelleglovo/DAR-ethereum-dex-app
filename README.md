@@ -1,4 +1,5 @@
-This is still on development
+<em>This project is still on development.</em>
+
 This is a DEX (Decentralized Exchange) using ERC20 standard. Implemented using the following stack:
 - Frontend
     - Next.js v12.0.8
@@ -16,8 +17,8 @@ It is not deployed on mainnet
 
 ## Getting Started
 
-First, run Ganache.
-Make sure that `truffle-config.js` is configured with your local Ganache network configuration.
+First, connect your MetaMask and run Ganache.
+Make sure that `truffle-config.js` and your MetaMask is configured with your local Ganache network configuration.
 Then, run the development server:
 
 ```bash
