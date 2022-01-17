@@ -1,11 +1,15 @@
 import type { NextPage } from "next";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../../styles/Home.module.css";
 import Button from "@mui/material/Button";
 import Web3 from "web3";
 import Identicon from "identicon.js";
+
+import Token from "../abis/Token.json";
+import EthSwapApp from "../abis/EthSwapApp.json";
+
 import {
   AppBar,
   IconButton,
@@ -22,6 +26,7 @@ import {
   OutlinedInput,
   Avatar,
 } from "@mui/material";
+import { useTheme } from "@emotion/react";
 
 declare global {
   interface Window {
@@ -31,8 +36,33 @@ declare global {
 }
 
 const Home: NextPage = () => {
-  const [account, setAccount] = useState("");
-  const [ethBalance, setEthbalance] = useState("0");
+  const [account, setAccount] = useState<string>("");
+  const [ethBalance, setEthbalance] = useState<string>("0");
+  const [tokenBalance, setTokenBalance] = useState<string>("0");
+  const [token, setToken] = useState({});
+  const [ethSwapApp, setEthSwapApp] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [output, setOutput] = useState(0);
+  const [input, setInput] = useState("");
+
+  const handleInputChange = (event) => {
+    setInput(event.target.value);
+    const etherAmount = event.target.value;
+    setOutput(etherAmount * 100);
+    // console.log(etherAmount * 100);
+  };
+
+  const handleOnSwapClick = () => {
+    setIsLoading(true);
+    const etherAmount = window.web3.utils.toWei(input, "Ether");
+    ethSwapApp.ethSwapApp.methods
+      .buyTokens()
+      .send({ value: etherAmount, from: account })
+      .on("transactionHash", (hash) => {
+        setIsLoading(false);
+        window.location.reload();
+      });
+  };
 
   const darkTheme = createTheme({ palette: { mode: "dark" } });
 
@@ -55,7 +85,38 @@ const Home: NextPage = () => {
 
     setAccount(accounts[0]);
 
-    setEthbalance(await web3.eth.getBalance(accounts[0]));
+    const networkId = await web3.eth.net.getId();
+
+    if (account) {
+      setEthbalance(await web3.eth.getBalance(account));
+
+      // Load Token
+      const tokenData = Token.networks[networkId];
+
+      if (tokenData) {
+        const token = new web3.eth.Contract(Token.abi, tokenData.address);
+        setToken({ token });
+        let tokenBalance = await token.methods.balanceOf(account).call();
+        setTokenBalance(tokenBalance.toString());
+      } else {
+        window.alert("Token contract not deployed to detected network");
+      }
+    }
+
+    // Load EthSwapApp
+    const ethSwapAppData = EthSwapApp.networks[networkId];
+
+    if (ethSwapApp) {
+      const ethSwapApp = new web3.eth.Contract(
+        EthSwapApp.abi,
+        ethSwapAppData.address
+      );
+      setEthSwapApp({ ethSwapApp });
+    } else {
+      window.alert("Token contract not deployed to detected network");
+    }
+
+    setIsLoading(false);
   };
 
   const MainCard = styled(Paper)(({ theme }) => ({
@@ -74,7 +135,7 @@ const Home: NextPage = () => {
       await loadBlockchainData();
     };
     init();
-  }, []);
+  }, [account]);
 
   return (
     <>
@@ -95,7 +156,7 @@ const Home: NextPage = () => {
               component="div"
               sx={{ flexGrow: 1 }}
             >
-              EthSwapApp
+              DAR-SwapApp
             </Typography>
             <Typography variant="subtitle2" color="inherit" component="div">
               {account}
@@ -113,7 +174,6 @@ const Home: NextPage = () => {
             ) : null}
           </Toolbar>
         </AppBar>
-
         <Box
           className={styles.container}
           sx={{
@@ -137,75 +197,82 @@ const Home: NextPage = () => {
               display: "flex",
               gridTemplateColumns: { md: "1fr 1fr" },
               gap: 2,
+              color: darkTheme.palette.text.secondary,
             }}
           >
-            <MainCard elevation={3}>
-              <Grid container spacing={3} justifyContent="space-between">
-                <Grid item xs="auto">
-                  <Typography>Input</Typography>
+            {isLoading ? (
+              <Typography>Loading...</Typography>
+            ) : (
+              <MainCard elevation={3}>
+                <Grid container spacing={3} justifyContent="space-between">
+                  <Grid item xs="auto">
+                    <Typography>Input</Typography>
+                  </Grid>
+                  <Grid item xs="auto">
+                    <Typography>
+                      Balance: {window.web3.utils.fromWei(ethBalance)}
+                    </Typography>
+                  </Grid>
                 </Grid>
-                <Grid item xs="auto">
-                  <Typography>Balance: {ethBalance}</Typography>
-                </Grid>
-              </Grid>
-              <OutlinedInput
-                fullWidth
-                id="outlined-adornment-weight"
-                value={0}
-                // onChange={handleChange('weight')}
-                endAdornment={
-                  <InputAdornment position="end">ETH</InputAdornment>
-                }
-                aria-describedby="outlined-weight-helper-text"
-                inputProps={{
-                  "aria-label": "ETH",
-                }}
-              />
-
-              <Grid container spacing={3} justifyContent="space-between">
-                <Grid item xs="auto">
-                  <Typography>Output</Typography>
-                </Grid>
-                <Grid item xs="auto">
-                  <Typography>Balance: 0</Typography>
-                </Grid>
-              </Grid>
-              <OutlinedInput
-                fullWidth
-                id="outlined-adornment-weight"
-                value={0}
-                // onChange={handleChange('weight')}
-                endAdornment={
-                  <InputAdornment position="end">DAR</InputAdornment>
-                }
-                aria-describedby="outlined-weight-helper-text"
-                inputProps={{
-                  "aria-label": "ETH",
-                }}
-              />
-              <Button fullWidth variant="contained">
-                SWAP!
-              </Button>
-            </MainCard>
-          </Box>
-
-          <footer className={styles.footer}>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Powered by{" "}
-              <span className={styles.logo}>
-                <Image
-                  src="/vercel.svg"
-                  alt="Vercel Logo"
-                  width={72}
-                  height={16}
+                <OutlinedInput
+                  autoFocus
+                  onChange={handleInputChange}
+                  fullWidth
+                  id="outlined-adornment-weight"
+                  value={input}
+                  // onChange={handleChange('weight')}
+                  endAdornment={
+                    <InputAdornment position="end">ETH</InputAdornment>
+                  }
+                  aria-describedby="outlined-weight-helper-text"
+                  inputProps={{
+                    "aria-label": "ETH",
+                    key: "123",
+                  }}
                 />
-              </span>
-            </a>
-          </footer>
+
+                <Grid container spacing={3} justifyContent="space-between">
+                  <Grid item xs="auto">
+                    <Typography>Output</Typography>
+                  </Grid>
+                  <Grid item xs="auto">
+                    <Typography>
+                      Balance: {window.web3.utils.fromWei(tokenBalance)}
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <OutlinedInput
+                  disabled
+                  fullWidth
+                  id="outlined-adornment-weight"
+                  value={output}
+                  // onChange={handleChange('weight')}
+                  endAdornment={
+                    <InputAdornment position="end">DAR</InputAdornment>
+                  }
+                  aria-describedby="outlined-weight-helper-text"
+                  inputProps={{
+                    "aria-label": "ETH",
+                  }}
+                />
+                <Grid container spacing={3} justifyContent="space-between">
+                  <Grid item xs="auto">
+                    <Typography>Exchange Rate</Typography>
+                  </Grid>
+                  <Grid item xs="auto">
+                    <Typography>1 ETH = 100 DAR</Typography>
+                  </Grid>
+                </Grid>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={handleOnSwapClick}
+                >
+                  SWAP!
+                </Button>
+              </MainCard>
+            )}
+          </Box>
         </Box>
       </ThemeProvider>
     </>
