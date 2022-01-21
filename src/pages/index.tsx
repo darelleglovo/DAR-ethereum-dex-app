@@ -49,7 +49,6 @@ const Home: NextPage = () => {
     setInput(event.target.value);
     const etherAmount = event.target.value;
     setOutput(etherAmount * 100);
-    // console.log(etherAmount * 100);
   };
 
   const handleOnSwapClick = () => {
@@ -64,7 +63,23 @@ const Home: NextPage = () => {
       });
   };
 
-  const darkTheme = createTheme({ palette: { mode: "dark" } });
+  const darkTheme = createTheme({
+    palette: {
+      primary: {
+        light: "#757ce8",
+        main: "#3f50b5",
+        dark: "#002884",
+        contrastText: "#fff",
+      },
+      secondary: {
+        light: "#ff7961",
+        main: "#f44336",
+        dark: "#ba000d",
+        contrastText: "#000",
+      },
+      mode: "dark",
+    },
+  });
 
   const loadWeb3 = async () => {
     if (window.ethereum) {
@@ -113,7 +128,7 @@ const Home: NextPage = () => {
       );
       setEthSwapApp({ ethSwapApp });
     } else {
-      window.alert("Token contract not deployed to detected network");
+      window.alert("EthSwapApp contract not deployed to detected network");
     }
 
     setIsLoading(false);
@@ -123,8 +138,7 @@ const Home: NextPage = () => {
     ...theme.typography.body2,
     textAlign: "center",
     color: theme.palette.text.secondary,
-    // height: "40vh",
-    width: "80vw",
+    // width: "80vw",
     lineHeight: "60px",
     padding: 20,
   }));
@@ -140,16 +154,8 @@ const Home: NextPage = () => {
   return (
     <>
       <ThemeProvider theme={darkTheme}>
-        <AppBar position="static">
+        <AppBar position="static" color="primary">
           <Toolbar>
-            {/* <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton> */}
             <Typography
               variant="h6"
               color="inherit"
@@ -180,7 +186,6 @@ const Home: NextPage = () => {
             p: 2,
             bgcolor: "background.default",
             display: "grid",
-            gridTemplateColumns: { md: "1fr 1fr" },
             gap: 2,
           }}
         >
@@ -203,74 +208,76 @@ const Home: NextPage = () => {
             {isLoading ? (
               <Typography>Loading...</Typography>
             ) : (
-              <MainCard elevation={3}>
-                <Grid container spacing={3} justifyContent="space-between">
-                  <Grid item xs="auto">
-                    <Typography>Input</Typography>
-                  </Grid>
-                  <Grid item xs="auto">
-                    <Typography>
-                      Balance: {window.web3.utils.fromWei(ethBalance)}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <OutlinedInput
-                  autoFocus
-                  onChange={handleInputChange}
-                  fullWidth
-                  id="outlined-adornment-weight"
-                  value={input}
-                  // onChange={handleChange('weight')}
-                  endAdornment={
-                    <InputAdornment position="end">ETH</InputAdornment>
-                  }
-                  aria-describedby="outlined-weight-helper-text"
-                  inputProps={{
-                    "aria-label": "ETH",
-                    key: "123",
-                  }}
-                />
+              <Grid container spacing={2} justifyContent="center">
+                <Grid item xs={12} md={7} lg={4}>
+                  <MainCard elevation={3}>
+                    <Grid container spacing={3} justifyContent="space-between">
+                      <Grid item xs="auto">
+                        <Typography>Input</Typography>
+                      </Grid>
+                      <Grid item xs="auto">
+                        <Typography>
+                          Balance: {window.web3.utils.fromWei(ethBalance)}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <OutlinedInput
+                      autoFocus
+                      onChange={handleInputChange}
+                      fullWidth
+                      id="outlined-adornment-weight"
+                      value={input}
+                      endAdornment={
+                        <InputAdornment position="end">ETH</InputAdornment>
+                      }
+                      aria-describedby="outlined-weight-helper-text"
+                      inputProps={{
+                        "aria-label": "ETH",
+                        key: "123",
+                      }}
+                    />
 
-                <Grid container spacing={3} justifyContent="space-between">
-                  <Grid item xs="auto">
-                    <Typography>Output</Typography>
-                  </Grid>
-                  <Grid item xs="auto">
-                    <Typography>
-                      Balance: {window.web3.utils.fromWei(tokenBalance)}
-                    </Typography>
-                  </Grid>
+                    <Grid container spacing={3} justifyContent="space-between">
+                      <Grid item xs="auto">
+                        <Typography>Output</Typography>
+                      </Grid>
+                      <Grid item xs="auto">
+                        <Typography>
+                          Balance: {window.web3.utils.fromWei(tokenBalance)}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <OutlinedInput
+                      disabled
+                      fullWidth
+                      id="outlined-adornment-weight"
+                      value={output}
+                      endAdornment={
+                        <InputAdornment position="end">DAR</InputAdornment>
+                      }
+                      aria-describedby="outlined-weight-helper-text"
+                      inputProps={{
+                        "aria-label": "ETH",
+                      }}
+                    />
+                    <Grid container spacing={3} justifyContent="space-between">
+                      <Grid item xs="auto">
+                        <Typography>Exchange Rate</Typography>
+                      </Grid>
+                      <Grid item xs="auto">
+                        <Typography>1 ETH = 100 DAR</Typography>
+                      </Grid>
+                    </Grid>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      onClick={handleOnSwapClick}
+                    >
+                      SWAP!
+                    </Button>
+                  </MainCard>{" "}
                 </Grid>
-                <OutlinedInput
-                  disabled
-                  fullWidth
-                  id="outlined-adornment-weight"
-                  value={output}
-                  // onChange={handleChange('weight')}
-                  endAdornment={
-                    <InputAdornment position="end">DAR</InputAdornment>
-                  }
-                  aria-describedby="outlined-weight-helper-text"
-                  inputProps={{
-                    "aria-label": "ETH",
-                  }}
-                />
-                <Grid container spacing={3} justifyContent="space-between">
-                  <Grid item xs="auto">
-                    <Typography>Exchange Rate</Typography>
-                  </Grid>
-                  <Grid item xs="auto">
-                    <Typography>1 ETH = 100 DAR</Typography>
-                  </Grid>
-                </Grid>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  onClick={handleOnSwapClick}
-                >
-                  SWAP!
-                </Button>
-              </MainCard>
+              </Grid>
             )}
           </Box>
         </Box>
