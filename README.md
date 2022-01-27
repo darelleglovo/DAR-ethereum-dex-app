@@ -1,3 +1,5 @@
+## DAR Swap App
+
 This is a DEX (Decentralized Exchange) using ERC20 standard. Implemented using the following stack:
 
 - Frontend
@@ -8,6 +10,8 @@ This is a DEX (Decentralized Exchange) using ERC20 standard. Implemented using t
   - Solidity v0.8.11
   - Truffle v5.4.29 (Ethereum development framework)
   - Ganache v2.5.4
+
+![alt text](https://raw.githubusercontent.com/darelleglovo/DAR-ethereum-dex-app/main/public/readme.gif)
 
 ## DAR Token
 
@@ -28,7 +32,7 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Testing
+## Automated Test
 
 For unit test, run the following command:
 
@@ -36,7 +40,3 @@ For unit test, run the following command:
 truffle test
 ```
 
-## TODOs
-
-- Theme system
--
